@@ -59,11 +59,3 @@ sealed interface SchedulerListUiState {
     object Loading : SchedulerListUiState
     data class Success(val schedules: List<ScheduleUiModel>) : SchedulerListUiState
 }
-
-data class ScheduleUiModel(
-    val id: Long,
-    val packageName: String,
-    val scheduledTime: String,
-    val isExecuted: Boolean,
-    val isCancelled: Boolean
-)

@@ -1,11 +1,11 @@
 package com.sayem.main.ui.scheduler
 
-import com.sayem.main.data.ScheduledAppRepository
-import com.sayem.main.worker.ScheduleManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sayem.main.data.ScheduledAppRepository
+import com.sayem.main.utils.DateTimeUtils
+import com.sayem.main.worker.ScheduleManager
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -23,13 +23,13 @@ class ScheduleDetailViewModel @Inject constructor(
     fun getSchedule(id: Long): StateFlow<ScheduleUiModel?> {
         return repository.getScheduledAppById(id)
             .map { schedule ->
-                schedule?.let {
+                schedule?.let { entity ->
                     ScheduleUiModel(
-                        id = it.id,
-                        packageName = it.packageName,
-                        scheduledTime = formatDateTime(it.scheduledTime),
-                        isExecuted = it.isExecuted,
-                        isCancelled = it.isCancelled
+                        id = entity.id,
+                        packageName = entity.packageName,
+                        scheduledTime = DateTimeUtils.formatDateTime(entity.scheduledTime),
+                        isExecuted = entity.isExecuted,
+                        isCancelled = entity.isCancelled
                     )
                 }
             }
