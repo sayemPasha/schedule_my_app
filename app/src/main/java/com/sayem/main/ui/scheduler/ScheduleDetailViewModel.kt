@@ -6,13 +6,22 @@ import com.sayem.main.data.ScheduledAppRepository
 import com.sayem.main.utils.DateTimeUtils
 import com.sayem.main.worker.ScheduleManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Calendar
 import javax.inject.Inject
+
+sealed interface ScheduleDetailUiState {
+    object Loading : ScheduleDetailUiState
+    data class Success(val schedule: ScheduleUiModel) : ScheduleDetailUiState
+    object NotFound : ScheduleDetailUiState
+}
 
 @HiltViewModel
 class ScheduleDetailViewModel @Inject constructor(
@@ -20,24 +29,34 @@ class ScheduleDetailViewModel @Inject constructor(
     private val scheduleManager: ScheduleManager
 ) : ViewModel() {
 
-    fun getSchedule(id: Long): StateFlow<ScheduleUiModel?> {
-        return repository.getScheduledAppById(id)
-            .map { schedule ->
-                schedule?.let { entity ->
-                    ScheduleUiModel(
-                        id = entity.id,
-                        packageName = entity.packageName,
-                        scheduledTime = DateTimeUtils.formatDateTime(entity.scheduledTime),
-                        isExecuted = entity.isExecuted,
-                        isCancelled = entity.isCancelled
-                    )
+    private val _uiState = MutableStateFlow<ScheduleDetailUiState>(ScheduleDetailUiState.Loading)
+    val uiState: StateFlow<ScheduleDetailUiState> = _uiState.asStateFlow()
+
+    fun loadSchedule(id: Long) {
+        viewModelScope.launch {
+            repository.getScheduledAppById(id)
+                .map { schedule ->
+                    schedule?.let { entity ->
+                        ScheduleDetailUiState.Success(
+                            ScheduleUiModel(
+                                id = entity.id,
+                                packageName = entity.packageName,
+                                scheduledTime = DateTimeUtils.formatDateTime(entity.scheduledTime),
+                                isExecuted = entity.isExecuted,
+                                isCancelled = entity.isCancelled
+                            )
+                        )
+                    } ?: ScheduleDetailUiState.NotFound
                 }
-            }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5000),
-                initialValue = null
-            )
+                .stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(5000),
+                    initialValue = ScheduleDetailUiState.Loading
+                )
+                .collect { state ->
+                    _uiState.update { state }
+                }
+        }
     }
 
     fun updateScheduleTime(id: Long, hour: Int, minute: Int) {

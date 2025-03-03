@@ -38,9 +38,15 @@ fun ScheduleDetailRoute(
     modifier: Modifier = Modifier,
     viewModel: ScheduleDetailViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.getSchedule(scheduleId).collectAsStateWithLifecycle(initialValue = null)
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    
+    // Load schedule when screen is created
+    androidx.compose.runtime.LaunchedEffect(scheduleId) {
+        viewModel.loadSchedule(scheduleId)
+    }
+    
     ScheduleDetailScreen(
-        schedule = uiState,
+        uiState = uiState,
         onNavigateUp = onNavigateUp,
         onUpdateTime = { hour, minute -> viewModel.updateScheduleTime(scheduleId, hour, minute) },
         onCancel = {
@@ -53,7 +59,7 @@ fun ScheduleDetailRoute(
 
 @Composable
 fun ScheduleDetailScreen(
-    schedule: ScheduleUiModel?,
+    uiState: ScheduleDetailUiState,
     onNavigateUp: () -> Unit,
     onUpdateTime: (Int, Int) -> Unit,
     onCancel: () -> Unit,
@@ -85,49 +91,60 @@ fun ScheduleDetailScreen(
             Spacer(modifier = Modifier.width(48.dp)) // Balance the back button
         }
 
-        if (schedule == null) {
-            CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
-        } else {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Text(
-                    text = schedule.packageName,
-                    style = MaterialTheme.typography.titleLarge
+        when (uiState) {
+            is ScheduleDetailUiState.Loading -> {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
-
+            }
+            is ScheduleDetailUiState.NotFound -> {
                 Text(
-                    text = "Scheduled for: ${schedule.scheduledTime}",
-                    style = MaterialTheme.typography.bodyLarge
+                    text = "Schedule not found",
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
+            }
+            is ScheduleDetailUiState.Success -> {
+                val schedule = uiState.schedule
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Text(
+                        text = schedule.packageName,
+                        style = MaterialTheme.typography.titleLarge
+                    )
 
-                Text(
-                    text = when {
-                        schedule.isExecuted -> "Status: Executed"
-                        schedule.isCancelled -> "Status: Cancelled"
-                        else -> "Status: Scheduled"
-                    },
-                    style = MaterialTheme.typography.bodyMedium
-                )
+                    Text(
+                        text = "Scheduled for: ${schedule.scheduledTime}",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
 
-                if (!schedule.isExecuted && !schedule.isCancelled) {
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = when {
+                            schedule.isExecuted -> "Status: Executed"
+                            schedule.isCancelled -> "Status: Cancelled"
+                            else -> "Status: Scheduled"
+                        },
+                        style = MaterialTheme.typography.bodyMedium
+                    )
 
-                    Button(
-                        onClick = { showTimePicker = true },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Change Time")
-                    }
+                    if (!schedule.isExecuted && !schedule.isCancelled) {
+                        Spacer(modifier = Modifier.height(16.dp))
 
-                    Button(
-                        onClick = onCancel,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Cancel Schedule")
+                        Button(
+                            onClick = { showTimePicker = true },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Change Time")
+                        }
+
+                        Button(
+                            onClick = onCancel,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Cancel Schedule")
+                        }
                     }
                 }
             }
