@@ -33,7 +33,13 @@ class ScheduleCreateViewModel @Inject constructor(
         viewModelScope.launch {
             val installedApps = packageManager.getInstalledApplications(0)
                 .filter { it.flags and ApplicationInfo.FLAG_SYSTEM == 0 } // Non-system apps
-                .map { AppInfo(it.packageName, it.loadLabel(packageManager).toString()) }
+                .map { 
+                    AppInfo(
+                        packageName = it.packageName,
+                        label = it.loadLabel(packageManager).toString(),
+                        icon = it.loadIcon(packageManager)
+                    )
+                }
                 .sortedBy { it.label }
 
             _uiState.update { ScheduleCreateUiState.Success(installedApps) }
@@ -66,5 +72,6 @@ sealed interface ScheduleCreateUiState {
 
 data class AppInfo(
     val packageName: String,
-    val label: String
+    val label: String,
+    val icon: android.graphics.drawable.Drawable
 )
