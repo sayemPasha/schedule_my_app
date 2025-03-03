@@ -23,10 +23,9 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.sayem.main.ui.metaitem.MetaItemScreen
-import com.sayem.main.ui.scheduler.ScheduleCreateRoute
-import com.sayem.main.ui.scheduler.ScheduleDetailRoute
-import com.sayem.main.ui.scheduler.SchedulerListRoute
+import com.sayem.main.ui.scheduler.create.ScheduleCreateRoute
+import com.sayem.main.ui.scheduler.details.ScheduleDetailRoute
+import com.sayem.main.ui.scheduler.list.SchedulerListRoute
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 

@@ -1,8 +1,9 @@
-package com.sayem.main.ui.scheduler
+package com.sayem.main.ui.scheduler.details
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sayem.main.data.ScheduledAppRepository
+import com.sayem.main.ui.scheduler.ScheduleUiModel
 import com.sayem.main.utils.DateTimeUtils
 import com.sayem.main.worker.ScheduleManager
 import dagger.hilt.android.lifecycle.HiltViewModel

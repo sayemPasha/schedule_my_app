@@ -1,4 +1,4 @@
-package com.sayem.main.ui.scheduler
+package com.sayem.main.ui.scheduler.list
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,6 +26,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.sayem.main.ui.scheduler.ScheduleUiModel
 
 @Composable
 fun SchedulerListRoute(
