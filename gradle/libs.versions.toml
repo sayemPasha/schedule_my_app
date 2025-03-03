@@ -2,7 +2,7 @@
 androidGradlePlugin = "8.8.0"
 androidxCore = "1.15.0"
 androidxLifecycle = "2.8.7"
-androidxWork = "2.9.0"
+androidxWork = "2.10.0"
 androidxActivity = "1.9.3"
 androidxComposeBom = "2024.12.01"
 androidxHilt = "1.2.0"
@@ -46,6 +46,7 @@ hilt-gradle-plugin = { module = "com.google.dagger:hilt-android-gradle-plugin", 
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "androidxWork" }
 androidx-work-testing = { module = "androidx.work:work-testing", version.ref = "androidxWork" }
 androidx-hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "androidxHilt" }
+androidx-hilt-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "androidxHilt" }
 junit = { module = "junit:junit", version.ref = "junit" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }

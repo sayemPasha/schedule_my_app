@@ -23,15 +23,9 @@ import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 
 @HiltAndroidApp
-class Schedule_my_app : Application(), Configuration.Provider {
+class ScheduleMyApp : Application(), Configuration.Provider {
     @Inject
     lateinit var workerFactory: HiltWorkerFactory
-
-
-//    override fun getWorkManagerConfiguration() =
-//        Configuration.Builder()
-//            .setWorkerFactory(workerFactory)
-//            .build()
 
 
     override val workManagerConfiguration: Configuration
