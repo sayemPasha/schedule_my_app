@@ -8,6 +8,7 @@ data class ScheduledAppEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val packageName: String,
+    val appName: String,
     val scheduledTime: Long,
     val isExecuted: Boolean = false,
     val isCancelled: Boolean = false,

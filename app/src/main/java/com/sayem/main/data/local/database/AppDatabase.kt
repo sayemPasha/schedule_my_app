@@ -19,7 +19,7 @@ package com.sayem.main.data.local.database
 import androidx.room.Database
 import androidx.room.RoomDatabase
 
-@Database(entities = [MetaItem::class, ScheduledAppEntity::class], version = 2)
+@Database(entities = [MetaItem::class, ScheduledAppEntity::class], version = 3)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun metaItemDao(): MetaItemDao
     abstract fun scheduledAppDao(): ScheduledAppDao

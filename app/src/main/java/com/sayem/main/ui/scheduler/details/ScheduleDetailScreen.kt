@@ -1,6 +1,8 @@
 package com.sayem.main.ui.scheduler.details
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -34,6 +36,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import java.util.Calendar
@@ -118,10 +121,22 @@ fun ScheduleDetailScreen(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Text(
-                        text = schedule.packageName,
-                        style = MaterialTheme.typography.titleLarge
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        schedule.appIcon?.let { icon ->
+                            Image(
+                                painter = rememberDrawablePainter(drawable = icon),
+                                contentDescription = "App icon for ${schedule.appName}",
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                        Text(
+                            text = schedule.appName,
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                    }
 
                     Text(
                         text = "Scheduled for: ${schedule.scheduledTime}",

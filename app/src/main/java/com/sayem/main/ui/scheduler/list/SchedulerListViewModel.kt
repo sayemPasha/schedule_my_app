@@ -1,10 +1,11 @@
 package com.sayem.main.ui.scheduler.list
 
-import com.sayem.main.data.ScheduledAppRepository
-import com.sayem.main.worker.ScheduleManager
+import android.content.pm.PackageManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sayem.main.data.ScheduledAppRepository
 import com.sayem.main.ui.scheduler.ScheduleUiModel
+import com.sayem.main.worker.ScheduleManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -19,20 +20,36 @@ import javax.inject.Inject
 @HiltViewModel
 class SchedulerListViewModel @Inject constructor(
     private val repository: ScheduledAppRepository,
-    private val scheduleManager: ScheduleManager
+    private val scheduleManager: ScheduleManager,
+    private val packageManager: PackageManager
 ) : ViewModel() {
 
     val uiState: StateFlow<SchedulerListUiState> = repository.getAllScheduledApps()
         .map { schedules ->
             SchedulerListUiState.Success(
                 schedules.map { schedule ->
-                    ScheduleUiModel(
-                        id = schedule.id,
-                        packageName = schedule.packageName,
-                        scheduledTime = formatDateTime(schedule.scheduledTime),
-                        isExecuted = schedule.isExecuted,
-                        isCancelled = schedule.isCancelled
-                    )
+                    try {
+                        val appInfo = packageManager.getApplicationInfo(schedule.packageName, 0)
+                        ScheduleUiModel(
+                            id = schedule.id,
+                            packageName = schedule.packageName,
+                            appName = schedule.appName,
+                            appIcon = appInfo.loadIcon(packageManager),
+                            scheduledTime = formatDateTime(schedule.scheduledTime),
+                            isExecuted = schedule.isExecuted,
+                            isCancelled = schedule.isCancelled
+                        )
+                    } catch (e: PackageManager.NameNotFoundException) {
+                        ScheduleUiModel(
+                            id = schedule.id,
+                            packageName = schedule.packageName,
+                            appName = schedule.appName,
+                            appIcon = null,
+                            scheduledTime = formatDateTime(schedule.scheduledTime),
+                            isExecuted = schedule.isExecuted,
+                            isCancelled = schedule.isCancelled
+                        )
+                    }
                 }
             )
         }

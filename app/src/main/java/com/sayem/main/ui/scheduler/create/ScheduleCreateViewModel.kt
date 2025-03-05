@@ -57,7 +57,9 @@ class ScheduleCreateViewModel @Inject constructor(
                 }
             }
 
-            repository.scheduleApp(packageName, calendar.timeInMillis)
+            val appInfo = packageManager.getApplicationInfo(packageName, 0)
+            val appName = appInfo.loadLabel(packageManager).toString()
+            repository.scheduleApp(packageName, appName, calendar.timeInMillis)
                 .onSuccess { scheduleId ->
                     scheduleManager.scheduleApp(scheduleId, calendar.timeInMillis)
                 }

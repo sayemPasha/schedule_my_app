@@ -25,7 +25,7 @@ class ScheduledAppRepository @Inject constructor(
         emit(scheduledAppDao.getScheduledAppById(id))
     }.flowOn(Dispatchers.IO)
 
-    suspend fun scheduleApp(packageName: String, scheduledTime: Long): Result<Long> {
+    suspend fun scheduleApp(packageName: String, appName: String, scheduledTime: Long): Result<Long> {
         return try {
             // Verify app exists
             packageManager.getPackageInfo(packageName, 0)
@@ -43,6 +43,7 @@ class ScheduledAppRepository @Inject constructor(
                 val id = scheduledAppDao.insertScheduledApp(
                     ScheduledAppEntity(
                         packageName = packageName,
+                        appName = appName,
                         scheduledTime = scheduledTime
                     )
                 )

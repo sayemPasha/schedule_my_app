@@ -65,6 +65,14 @@ class DatabaseModule {
                         """
                     )
                 }
+            },
+            object : androidx.room.migration.Migration(2, 3) {
+                override fun migrate(database: androidx.sqlite.db.SupportSQLiteDatabase) {
+                    // Add appName column with default value as package name
+                    database.execSQL("ALTER TABLE scheduled_apps ADD COLUMN appName TEXT NOT NULL DEFAULT ''")
+                    // Update appName for existing records using package name
+                    database.execSQL("UPDATE scheduled_apps SET appName = packageName")
+                }
             }
         ).build()
     }

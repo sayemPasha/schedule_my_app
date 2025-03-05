@@ -1,5 +1,6 @@
 package com.sayem.main.ui.scheduler.details
 
+import android.content.pm.PackageManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sayem.main.data.ScheduledAppRepository
@@ -27,7 +28,8 @@ sealed interface ScheduleDetailUiState {
 @HiltViewModel
 class ScheduleDetailViewModel @Inject constructor(
     private val repository: ScheduledAppRepository,
-    private val scheduleManager: ScheduleManager
+    private val scheduleManager: ScheduleManager,
+    private val packageManager: PackageManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<ScheduleDetailUiState>(ScheduleDetailUiState.Loading)
@@ -39,13 +41,28 @@ class ScheduleDetailViewModel @Inject constructor(
                 .map { schedule ->
                     schedule?.let { entity ->
                         ScheduleDetailUiState.Success(
-                            ScheduleUiModel(
-                                id = entity.id,
-                                packageName = entity.packageName,
-                                scheduledTime = DateTimeUtils.formatDateTime(entity.scheduledTime),
-                                isExecuted = entity.isExecuted,
-                                isCancelled = entity.isCancelled
-                            )
+                            try {
+                                val appInfo = packageManager.getApplicationInfo(entity.packageName, 0)
+                                ScheduleUiModel(
+                                    id = entity.id,
+                                    packageName = entity.packageName,
+                                    appName = entity.appName,
+                                    appIcon = appInfo.loadIcon(packageManager),
+                                    scheduledTime = DateTimeUtils.formatDateTime(entity.scheduledTime),
+                                    isExecuted = entity.isExecuted,
+                                    isCancelled = entity.isCancelled
+                                )
+                            } catch (e: PackageManager.NameNotFoundException) {
+                                ScheduleUiModel(
+                                    id = entity.id,
+                                    packageName = entity.packageName,
+                                    appName = entity.appName,
+                                    appIcon = null,
+                                    scheduledTime = DateTimeUtils.formatDateTime(entity.scheduledTime),
+                                    isExecuted = entity.isExecuted,
+                                    isCancelled = entity.isCancelled
+                                )
+                            }
                         )
                     } ?: ScheduleDetailUiState.NotFound
                 }

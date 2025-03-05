@@ -1,9 +1,11 @@
 package com.sayem.main.ui.scheduler.list
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -26,6 +28,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.sayem.main.ui.scheduler.ScheduleUiModel
 
 @Composable
@@ -120,12 +123,24 @@ fun ScheduleItem(
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            Text(
-                text = schedule.packageName,
-                style = MaterialTheme.typography.titleMedium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                schedule.appIcon?.let { icon ->
+                    Image(
+                        painter = rememberDrawablePainter(drawable = icon),
+                        contentDescription = "App icon for ${schedule.appName}",
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+                Text(
+                    text = schedule.appName,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
             Text(
                 text = schedule.scheduledTime,
                 style = MaterialTheme.typography.bodyMedium
