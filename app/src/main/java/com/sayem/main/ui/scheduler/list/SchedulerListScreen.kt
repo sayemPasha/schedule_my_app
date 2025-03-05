@@ -6,9 +6,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -35,6 +37,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -45,6 +48,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.sayem.main.R
 import com.sayem.main.ui.scheduler.ScheduleUiModel
+import com.sayem.main.ui.shared.CancelledBadge
+import com.sayem.main.ui.shared.ExecutedBadge
+import com.sayem.main.ui.shared.ScheduledBadge
 
 @Composable
 fun SchedulerListRoute(
@@ -97,9 +103,6 @@ fun SchedulerListScreen(
                     titleContentColor = MaterialTheme.colorScheme.primary,
                     actionIconContentColor = MaterialTheme.colorScheme.primary
                 ),
-
-
-
             )
 
         },
@@ -115,7 +118,7 @@ fun SchedulerListScreen(
             }
 
         }
-    ){ paddingValues ->
+    ) { paddingValues ->
         Surface(
             color = MaterialTheme.colorScheme.background,
         ) {
@@ -133,11 +136,21 @@ fun SchedulerListScreen(
 
                     is SchedulerListUiState.Success -> {
                         if (uiState.schedules.isEmpty()) {
-                            Text(
-                                text = "No scheduled apps",
-                                style = MaterialTheme.typography.bodyLarge,
-                                modifier = Modifier.align(Alignment.Center)
-                            )
+                            Column(
+                                modifier = Modifier.fillMaxWidth().align(Alignment.Center),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Image(
+                                    modifier = Modifier.size(40.dp),
+                                    painter = painterResource(R.drawable.ic_empty_schedule),
+                                    contentDescription = "Empty schedule",
+                                )
+                                Spacer(modifier= Modifier.height(20.dp))
+                                Text(
+                                    text = "No scheduled apps",
+                                    style = MaterialTheme.typography.bodyLarge,
+                                )
+                            }
                         } else {
                             LazyColumn(
                                 modifier = Modifier.fillMaxSize(),
@@ -147,29 +160,14 @@ fun SchedulerListScreen(
                                     items = uiState.schedules,
                                     key = { it.id }
                                 ) { schedule ->
-                                    ScheduleItem2(
+                                    ScheduleItem(
                                         schedule = schedule,
                                         onClick = { onScheduleClick(schedule.id) },
                                         onCancel = { onCancelSchedule(schedule.id) },
-                                        //                                modifier = Modifier
-                                        //                                    .fillMaxWidth()
-                                        //                                    .padding(horizontal = 16.dp)
                                     )
                                 }
                             }
                         }
-
-                        //                    FloatingActionButton(
-                        //                        onClick = onCreateSchedule,
-                        //                        modifier = Modifier
-                        //                            .align(Alignment.BottomEnd)
-                        //                            .padding(16.dp)
-                        //                    ) {
-                        //                        Icon(
-                        //                            imageVector = Icons.Default.Add,
-                        //                            contentDescription = "Create schedule"
-                        //                        )
-                        //                    }
                     }
                 }
             }
@@ -178,88 +176,14 @@ fun SchedulerListScreen(
 
     }
 }
+
 
 @Composable
 fun ScheduleItem(
     schedule: ScheduleUiModel,
     onClick: () -> Unit,
-    onCancel: () -> Unit,
-    modifier: Modifier = Modifier
+    onCancel: () -> Unit
 ) {
-    Card(
-        modifier = modifier,
-        onClick = onClick
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                schedule.appIcon?.let { icon ->
-                    Image(
-                        painter = rememberDrawablePainter(drawable = icon),
-                        contentDescription = "App icon for ${schedule.appName}",
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-                Text(
-                    text = schedule.appName,
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-            Text(
-                text = schedule.scheduledTime,
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = when {
-                        schedule.isExecuted -> "Executed"
-                        schedule.isCancelled -> "Cancelled"
-                        else -> "Scheduled"
-                    },
-                    style = MaterialTheme.typography.bodySmall
-                )
-                if (!schedule.isExecuted && !schedule.isCancelled) {
-                    TextButton(onClick = onCancel) {
-                        Text("Cancel")
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Preview
-@Composable
-fun ScheduleItemPreview() {
-    ScheduleItem(
-        schedule = ScheduleUiModel(
-            id = 1,
-            appIcon = null,
-            appName = "App Name",
-            scheduledTime = "Scheduled time",
-            isExecuted = false,
-            isCancelled = false,
-            packageName = "ABC"
-        ),
-        onClick = {},
-        onCancel = {}
-    )
-}
-
-@Composable
-fun ScheduleItem2(schedule: ScheduleUiModel, onClick: () -> Unit, onCancel: () -> Unit) {
     ListItem(
         modifier = Modifier.clickable {
             onClick()
@@ -271,45 +195,14 @@ fun ScheduleItem2(schedule: ScheduleUiModel, onClick: () -> Unit, onCancel: () -
 
             when {
                 schedule.isExecuted -> {
-                    Badge(
-                        modifier = Modifier.padding(vertical = 8.dp),
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onSurface
-                    ) {
-                        Text(
-                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
-                            text = "Executed"
-                        )
-                    }
-
-
+                    ExecutedBadge()
                 }
-
                 schedule.isCancelled -> {
-                    Badge(
-                        modifier = Modifier.padding(vertical = 8.dp),
-
-                        ) {
-                        Text(
-                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
-                            text = "Cancelled"
-                        )
-                    }
-
+                    CancelledBadge()
 
                 }
-
                 else -> {
-                    Badge(
-                        modifier = Modifier.padding(vertical = 8.dp),
-                        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                        contentColor = MaterialTheme.colorScheme.onSurface
-                    ) {
-                        Text(
-                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
-                            text = "Scheduled"
-                        )
-                    }
+                    ScheduledBadge()
                 }
             }
         },
@@ -336,14 +229,13 @@ fun ScheduleItem2(schedule: ScheduleUiModel, onClick: () -> Unit, onCancel: () -
         }
 
 
-
     )
 }
 
 @Preview
 @Composable
-fun ScheduleItem2Preview() {
-    ScheduleItem2(
+fun ScheduleItemPreview() {
+    ScheduleItem(
         schedule = ScheduleUiModel(
             id = 1,
             appIcon = null,
