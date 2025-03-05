@@ -55,7 +55,7 @@ fun MainNavigation() {
             ScheduleDetailRoute(
                 scheduleId = scheduleId,
                 onNavigateUp = { navController.popBackStack() },
-                modifier = Modifier.padding(16.dp)
+//                modifier = Modifier.padding(16.dp)
             )
         }
     }

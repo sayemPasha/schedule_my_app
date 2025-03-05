@@ -171,10 +171,12 @@ fun ScheduleDetailScreen(
                                     schedule.isExecuted -> {
                                         ExecutedBadge()
                                     }
+
                                     schedule.isCancelled -> {
                                         CancelledBadge()
 
                                     }
+
                                     else -> {
                                         ScheduledBadge()
                                     }
@@ -183,6 +185,10 @@ fun ScheduleDetailScreen(
                         )
 
 
+                        Column(
+                            modifier = Modifier.fillMaxWidth().padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
                             Surface(
 
                                 modifier = Modifier
@@ -191,7 +197,7 @@ fun ScheduleDetailScreen(
                                         MaterialTheme.shapes.medium
                                     ),
                                 color = MaterialTheme.colorScheme.surfaceContainer,
-                            ){
+                            ) {
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.SpaceBetween
@@ -233,7 +239,7 @@ fun ScheduleDetailScreen(
                                 }
                             }
 
-                        if (!schedule.isExecuted && !schedule.isCancelled) {
+                            if (!schedule.isExecuted && !schedule.isCancelled) {
 
                                 Button(
                                     modifier = Modifier.fillMaxWidth(),
@@ -259,7 +265,7 @@ fun ScheduleDetailScreen(
                                     }
                                 }
 
-                        }
+                            }
 
 //                        Row(
 //                            verticalAlignment = Alignment.CenterVertically,
@@ -309,6 +315,7 @@ fun ScheduleDetailScreen(
 //                                Text("Cancel Schedule")
 //                            }
 //                        }
+                        }
                     }
                 }
             }
