@@ -38,7 +38,7 @@ fun MainNavigation() {
             SchedulerListRoute(
                 onCreateSchedule = { navController.navigate("create_schedule") },
                 onScheduleClick = { id -> navController.navigate("schedule_detail/$id") },
-                modifier = Modifier.padding(16.dp)
+//                modifier = Modifier.padding(16.dp)
             )
         }
         composable("create_schedule") {
