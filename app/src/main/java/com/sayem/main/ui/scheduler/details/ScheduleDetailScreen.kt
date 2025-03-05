@@ -14,10 +14,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
@@ -201,7 +203,9 @@ fun ScheduleDetailScreen(
                                         Image(
                                             painter = painterResource(R.drawable.baseline_schedule_24),
                                             contentDescription = "Scheduled time",
-                                            modifier = Modifier.size(24.dp).align(Alignment.CenterVertically),
+                                            modifier = Modifier
+                                                .size(24.dp)
+                                                .align(Alignment.CenterVertically),
                                             colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.primary)
                                         )
 
@@ -219,13 +223,43 @@ fun ScheduleDetailScreen(
                                         }
                                     }
 
-                                    TextButton (
-                                        onClick = { showTimePicker = true },
-                                    ) {
-                                        Text("Change")
+                                    if (!schedule.isExecuted && !schedule.isCancelled) {
+                                        TextButton(
+                                            onClick = { showTimePicker = true },
+                                        ) {
+                                            Text("Change")
+                                        }
                                     }
                                 }
                             }
+
+                        if (!schedule.isExecuted && !schedule.isCancelled) {
+
+                                Button(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    onClick = onCancel,
+                                    colors = ButtonDefaults.buttonColors().copy(
+                                        containerColor = MaterialTheme.colorScheme.error,
+                                        contentColor = MaterialTheme.colorScheme.onError
+                                    )
+                                ) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+
+                                        Image(
+
+                                            painter = painterResource(R.drawable.baseline_delete_24),
+                                            contentDescription = "Delete",
+                                            colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onError)
+
+                                        )
+                                        Text("Cancel Schedule")
+                                    }
+                                }
+
+                        }
 
 //                        Row(
 //                            verticalAlignment = Alignment.CenterVertically,
@@ -244,37 +278,37 @@ fun ScheduleDetailScreen(
 //                            )
 //                        }
 
-                        Text(
-                            text = "Scheduled for: ${schedule.scheduledTime}",
-                            style = MaterialTheme.typography.bodyLarge
-                        )
+//                        Text(
+//                            text = "Scheduled for: ${schedule.scheduledTime}",
+//                            style = MaterialTheme.typography.bodyLarge
+//                        )
+//
+//                        Text(
+//                            text = when {
+//                                schedule.isExecuted -> "Status: Executed"
+//                                schedule.isCancelled -> "Status: Cancelled"
+//                                else -> "Status: Scheduled"
+//                            },
+//                            style = MaterialTheme.typography.bodyMedium
+//                        )
 
-                        Text(
-                            text = when {
-                                schedule.isExecuted -> "Status: Executed"
-                                schedule.isCancelled -> "Status: Cancelled"
-                                else -> "Status: Scheduled"
-                            },
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-
-                        if (!schedule.isExecuted && !schedule.isCancelled) {
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            Button(
-                                onClick = { showTimePicker = true },
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text("Change Time")
-                            }
-
-                            Button(
-                                onClick = onCancel,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text("Cancel Schedule")
-                            }
-                        }
+//                        if (!schedule.isExecuted && !schedule.isCancelled) {
+//                            Spacer(modifier = Modifier.height(16.dp))
+//
+//                            Button(
+//                                onClick = { showTimePicker = true },
+//                                modifier = Modifier.fillMaxWidth()
+//                            ) {
+//                                Text("Change Time")
+//                            }
+//
+//                            Button(
+//                                onClick = onCancel,
+//                                modifier = Modifier.fillMaxWidth()
+//                            ) {
+//                                Text("Cancel Schedule")
+//                            }
+//                        }
                     }
                 }
             }

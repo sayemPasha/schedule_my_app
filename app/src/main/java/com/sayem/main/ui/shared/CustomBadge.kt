@@ -24,7 +24,11 @@ fun ExecutedBadge() {
 
 @Composable
 fun CancelledBadge(){
-    Badge(modifier = Modifier.padding(vertical = 8.dp),) {
+    Badge(
+        modifier = Modifier.padding(vertical = 8.dp),
+        containerColor = MaterialTheme.colorScheme.errorContainer,
+        contentColor = MaterialTheme.colorScheme.onErrorContainer
+    ) {
         Text(
             modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
             text = "Cancelled"
