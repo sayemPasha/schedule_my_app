@@ -323,17 +323,6 @@ fun ScheduleDetailScreen(
 
         if (showTimePicker) {
             val currentTime = Calendar.getInstance()
-//        TimePickerDialog(
-//            context,
-//            { _, hour, minute ->
-//                onUpdateTime(hour, minute)
-//                showTimePicker = false
-//            },
-//            calendar.get(Calendar.HOUR_OF_DAY),
-//            calendar.get(Calendar.MINUTE),
-//            false
-//        ).show()
-
             Dialog(
                 properties = DialogProperties(usePlatformDefaultWidth = false),
                 onDismissRequest = {}

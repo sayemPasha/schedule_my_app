@@ -44,7 +44,9 @@ fun MainNavigation() {
         composable("create_schedule") {
             ScheduleCreateRoute(
                 onScheduleCreated = { navController.popBackStack() },
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.padding(16.dp),
+                onNavigateUp = { navController.popBackStack() },
+
             )
         }
         composable(
