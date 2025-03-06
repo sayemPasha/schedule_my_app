@@ -50,6 +50,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sayem.main.R
 import com.sayem.main.ui.shared.CancelledBadge
+import com.sayem.main.ui.shared.CustomTimePickerDialog
 import com.sayem.main.ui.shared.CustomTopBar
 import com.sayem.main.ui.shared.ExecutedBadge
 import com.sayem.main.ui.shared.ScheduledBadge
@@ -267,54 +268,6 @@ fun ScheduleDetailScreen(
 
                             }
 
-//                        Row(
-//                            verticalAlignment = Alignment.CenterVertically,
-//                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-//                        ) {
-//                            schedule.appIcon?.let { icon ->
-//                                Image(
-//                                    painter = rememberDrawablePainter(drawable = icon),
-//                                    contentDescription = "App icon for ${schedule.appName}",
-//                                    modifier = Modifier.size(24.dp)
-//                                )
-//                            }
-//                            Text(
-//                                text = schedule.appName,
-//                                style = MaterialTheme.typography.titleLarge
-//                            )
-//                        }
-
-//                        Text(
-//                            text = "Scheduled for: ${schedule.scheduledTime}",
-//                            style = MaterialTheme.typography.bodyLarge
-//                        )
-//
-//                        Text(
-//                            text = when {
-//                                schedule.isExecuted -> "Status: Executed"
-//                                schedule.isCancelled -> "Status: Cancelled"
-//                                else -> "Status: Scheduled"
-//                            },
-//                            style = MaterialTheme.typography.bodyMedium
-//                        )
-
-//                        if (!schedule.isExecuted && !schedule.isCancelled) {
-//                            Spacer(modifier = Modifier.height(16.dp))
-//
-//                            Button(
-//                                onClick = { showTimePicker = true },
-//                                modifier = Modifier.fillMaxWidth()
-//                            ) {
-//                                Text("Change Time")
-//                            }
-//
-//                            Button(
-//                                onClick = onCancel,
-//                                modifier = Modifier.fillMaxWidth()
-//                            ) {
-//                                Text("Cancel Schedule")
-//                            }
-//                        }
                         }
                     }
                 }
@@ -322,52 +275,13 @@ fun ScheduleDetailScreen(
         }
 
         if (showTimePicker) {
-            val currentTime = Calendar.getInstance()
-            Dialog(
-                properties = DialogProperties(usePlatformDefaultWidth = false),
-                onDismissRequest = {}
-            ){
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-
-                    colors = CardDefaults.cardColors(
-                        contentColor = MaterialTheme.colorScheme.onSurface,
-                        containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                    )
-                ){
-                    Column(modifier = Modifier
-                        .padding(horizontal = 20.dp, vertical = 40.dp)
-                        .fillMaxWidth()){
-                        val timePickerState = rememberTimePickerState(
-                            initialHour = currentTime.get(Calendar.HOUR_OF_DAY),
-                            initialMinute = currentTime.get(Calendar.MINUTE),
-                            is24Hour = false,
-                        )
-
-                        TimePicker(
-                            modifier = Modifier.align(Alignment.CenterHorizontally),
-                            state = timePickerState,
-                        )
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            OutlinedButton (onClick = { showTimePicker = false }) {
-                                Text("Cancel")
-                            }
-                            Spacer(modifier = Modifier.width(16.dp))
-                            Button(onClick = {
-                                onUpdateTime(timePickerState.hour, timePickerState.minute)
-                                showTimePicker = false
-                            }) {
-                                Text("Confirm selection")
-                            }
-                        }
-                    }
-                }
-            }
+            CustomTimePickerDialog(
+                onUpdateTime = { hour, minute ->
+                    onUpdateTime(hour, minute)
+                    showTimePicker = false
+                },
+                onHideDialog = { showTimePicker = false }
+            )
 
         }
     }

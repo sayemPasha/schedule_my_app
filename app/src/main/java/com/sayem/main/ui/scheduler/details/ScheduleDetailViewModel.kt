@@ -89,7 +89,10 @@ class ScheduleDetailViewModel @Inject constructor(
             }
 
             repository.updateSchedule(id, calendar.timeInMillis)
-                .onSuccess { scheduleManager.scheduleApp(id, calendar.timeInMillis) }
+                .onSuccess {
+                    scheduleManager.scheduleApp(id, calendar.timeInMillis)
+                    loadSchedule(id)
+                }
         }
     }
 
