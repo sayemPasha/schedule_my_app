@@ -31,14 +31,14 @@ class ScheduledAppRepository @Inject constructor(
             packageManager.getPackageInfo(packageName, 0)
             
             // Check for time conflicts (5 minute buffer)
-            val bufferTime = 5 * 60 * 1000L // 5 minutes in milliseconds
+
             val hasConflict = scheduledAppDao.hasScheduleConflict(
-                scheduledTime - bufferTime,
-                scheduledTime + bufferTime
+                scheduledTime - BUFFER_TIME,
+                scheduledTime + BUFFER_TIME
             )
             
             if (hasConflict) {
-                Result.failure(Exception("Schedule conflict: Another app is scheduled within 5 minutes"))
+                Result.failure(ScheduleConflictException())
             } else {
                 val id = scheduledAppDao.insertScheduledApp(
                     ScheduledAppEntity(
@@ -74,7 +74,7 @@ class ScheduledAppRepository @Inject constructor(
                 )
                 
                 if (hasConflict) {
-                    Result.failure(Exception("Schedule conflict: Another app is scheduled within 5 minutes"))
+                    Result.failure(ScheduleConflictException())
                 } else {
                     scheduledAppDao.updateScheduledApp(
                         existingSchedule.copy(scheduledTime = newScheduledTime)
@@ -106,4 +106,14 @@ class ScheduledAppRepository @Inject constructor(
     suspend fun markAsExecuted(id: Long) {
         scheduledAppDao.markAsExecuted(id)
     }
+
+    companion object{
+        val BUFFER_TIME = 5 * 60 * 1000L
+    }
 }
+
+
+class ScheduleConflictException(
+    val messageVerbose: String = "Schedule conflict: Another app is scheduled within 5 minutes",
+    val permitRetry: Boolean = true
+) : Exception(messageVerbose)

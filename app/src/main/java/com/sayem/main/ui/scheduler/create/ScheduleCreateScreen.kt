@@ -20,7 +20,9 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -38,9 +40,11 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sayem.main.R
+import com.sayem.main.ui.shared.CustomAlertDialog
 import com.sayem.main.ui.shared.CustomTimePickerDialog
 import com.sayem.main.ui.shared.CustomTopBar
 import java.text.SimpleDateFormat
@@ -58,19 +62,22 @@ fun ScheduleCreateRoute(
     ScheduleCreateScreen(
         uiState = uiState,
         onScheduleApp = { packageName, hour, minute ->
-            viewModel.scheduleApp(packageName, hour, minute)
-            onScheduleCreated()
+            viewModel.scheduleApp(packageName, hour, minute, onScheduleCreated)
+//
         },
         onNavigateUp = onNavigateUp,
+        onDismissAlertDialog = { viewModel.dismissDialog() },
         modifier = modifier
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScheduleCreateScreen(
     uiState: ScheduleCreateUiState,
     onScheduleApp: (String, Int, Int) -> Unit,
     onNavigateUp: () -> Unit,
+    onDismissAlertDialog: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showTimePicker by remember { mutableStateOf(false) }
@@ -157,6 +164,14 @@ fun ScheduleCreateScreen(
                                 }
                             }
                         }
+                    }
+
+                    if(uiState.showAlertDialog){
+                        CustomAlertDialog(
+                            title = "Error",
+                            message = uiState.dialogContent,
+                            onDismissRequest = onDismissAlertDialog
+                        )
                     }
                 }
             }

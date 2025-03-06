@@ -6,6 +6,7 @@ import com.sayem.main.data.ScheduledAppRepository
 import com.sayem.main.worker.ScheduleManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sayem.main.data.ScheduleConflictException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -46,7 +47,7 @@ class ScheduleCreateViewModel @Inject constructor(
         }
     }
 
-    fun scheduleApp(packageName: String, hour: Int, minute: Int) {
+    fun scheduleApp(packageName: String, hour: Int, minute: Int, onScheduleCreationSuccess: () -> Unit) {
         viewModelScope.launch {
             val calendar = Calendar.getInstance().apply {
                 set(Calendar.HOUR_OF_DAY, hour)
@@ -62,14 +63,52 @@ class ScheduleCreateViewModel @Inject constructor(
             repository.scheduleApp(packageName, appName, calendar.timeInMillis)
                 .onSuccess { scheduleId ->
                     scheduleManager.scheduleApp(scheduleId, calendar.timeInMillis)
+                    onScheduleCreationSuccess()
                 }
+                .onFailure { e->
+                    when(e) {
+                        is PackageManager.NameNotFoundException -> {
+                            // App not found
+                        }
+                        is ScheduleConflictException -> {
+                            (e as? ScheduleConflictException)?.let {
+                                showErrorDialog(it.messageVerbose)
+                            }
+                        }
+                        else -> {
+                            // Other error
+                        }
+                    }
+
+                }
+        }
+    }
+
+    fun dismissDialog() {
+        _uiState.update {
+            (it as? ScheduleCreateUiState.Success)?.copy(
+                showAlertDialog = false
+            ) ?: it
+        }
+    }
+
+    private fun showErrorDialog(message: String) {
+        _uiState.update{
+            (it as? ScheduleCreateUiState.Success)?.copy(
+                showAlertDialog = true,
+                dialogContent = message
+            ) ?: it
         }
     }
 }
 
 sealed interface ScheduleCreateUiState {
     object Loading : ScheduleCreateUiState
-    data class Success(val apps: List<AppInfo>) : ScheduleCreateUiState
+    data class Success(
+        val apps: List<AppInfo>,
+        val showAlertDialog: Boolean = false,
+        val dialogContent: String = ""
+    ) : ScheduleCreateUiState
 }
 
 data class AppInfo(
