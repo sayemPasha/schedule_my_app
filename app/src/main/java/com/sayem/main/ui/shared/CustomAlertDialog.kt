@@ -1,6 +1,8 @@
 package com.sayem.main.ui.shared
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -39,6 +41,42 @@ fun CustomAlertDialog(
                 TextButton(onClick = {
                     onDismissRequest()
                 }, modifier = Modifier.align(Alignment.End)) { Text("Okay") }
+            }
+        }
+    }
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CustomConfirmationDialog(
+    title: String,
+    message: String,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    BasicAlertDialog(onDismissRequest = onDismiss) {
+        Surface(
+            modifier = Modifier.wrapContentWidth().wrapContentHeight(),
+            color = MaterialTheme.colorScheme.surfaceContainer,
+            shape = MaterialTheme.shapes.large,
+            tonalElevation = AlertDialogDefaults.TonalElevation
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(text = title, style = MaterialTheme.typography.titleMedium)
+                Text(text = message, style = MaterialTheme.typography.bodyMedium)
+                Spacer(modifier = Modifier.height(24.dp))
+                Row(
+                    modifier = Modifier.align(Alignment.End),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    TextButton(onClick = onDismiss) {
+                        Text("Cancel")
+                    }
+                    TextButton(onClick = onConfirm) {
+                        Text("Confirm")
+                    }
+                }
             }
         }
     }

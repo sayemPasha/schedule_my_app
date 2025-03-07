@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Badge
 import androidx.compose.material3.Card
@@ -58,6 +59,8 @@ import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.sayem.main.R
 import com.sayem.main.ui.scheduler.ScheduleUiModel
 import com.sayem.main.ui.shared.CancelledBadge
+import com.sayem.main.ui.shared.CustomAlertDialog
+import com.sayem.main.ui.shared.CustomConfirmationDialog
 import com.sayem.main.ui.shared.ExecutedBadge
 import com.sayem.main.ui.shared.ScheduledBadge
 
@@ -91,6 +94,27 @@ fun SchedulerListScreen(
     onSortOptionSelected: (SortOption) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var showCancelDialog by remember { mutableStateOf(false) }
+    var scheduleToCancel by remember { mutableStateOf<Long?>(null) }
+
+    if (showCancelDialog && scheduleToCancel != null) {
+        CustomConfirmationDialog(
+            title = "Cancel Schedule",
+            message = "Are you sure you want to cancel this schedule?",
+            onConfirm = {
+                if (scheduleToCancel != null) {
+                    onCancelSchedule(scheduleToCancel!!)
+                }
+                showCancelDialog = false
+                scheduleToCancel = null
+            },
+            onDismiss = {
+                showCancelDialog = false
+                scheduleToCancel = null
+            }
+        )
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -116,6 +140,15 @@ fun SchedulerListScreen(
                                 onClick = {
                                     onSortOptionSelected(SortOption.DATE)
                                     showSortMenu = false
+                                },
+                                trailingIcon = {
+                                    if ((uiState as? SchedulerListUiState.Success)?.selectedSortOption == SortOption.DATE) {
+                                        Icon(
+                                            imageVector = Icons.Default.Check,
+                                            contentDescription = "Selected",
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                    }
                                 }
                             )
                             DropdownMenuItem(
@@ -123,6 +156,15 @@ fun SchedulerListScreen(
                                 onClick = {
                                     onSortOptionSelected(SortOption.NAME)
                                     showSortMenu = false
+                                },
+                                trailingIcon = {
+                                    if ((uiState as? SchedulerListUiState.Success)?.selectedSortOption == SortOption.NAME) {
+                                        Icon(
+                                            imageVector = Icons.Default.Check,
+                                            contentDescription = "Selected",
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                    }
                                 }
                             )
                         }
@@ -194,7 +236,7 @@ fun SchedulerListScreen(
                                                 .padding(horizontal = 16.dp, vertical = 8.dp),
                                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                                         ) {
-                                            items(ScheduleFilter.values()) { filter ->
+                                            items(ScheduleFilter.entries.toTypedArray()) { filter ->
                                                 FilterChip(
                                                     selected = uiState.selectedFilter == filter,
                                                     onClick = { onFilterSelected(filter) },
@@ -211,7 +253,10 @@ fun SchedulerListScreen(
                                     ScheduleItem(
                                         schedule = schedule,
                                         onClick = { onScheduleClick(schedule.id) },
-                                        onCancel = { onCancelSchedule(schedule.id) },
+                                        onCancel = {
+                                            showCancelDialog = true
+                                            scheduleToCancel = schedule.id
+                                        },
                                     )
                                 }
                             }
@@ -257,6 +302,7 @@ fun ScheduleItem(
                 Image(
                     painter = painterResource(id = R.drawable.ic_empty_app),
                     contentDescription = "App icon for ${schedule.appName}",
+                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
                     modifier = Modifier.size(40.dp)
                 )
             } else {
