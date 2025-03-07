@@ -94,7 +94,7 @@ app/src/main/java/com/sayem/main/
 ## Build Configuration
 
 The app uses Gradle with Kotlin DSL (`build.gradle.kts`) for build configuration. Key configurations include:
-
+- Kotlin 2.1.0
 - Compose enabled
 - Java 17 compatibility
 - Room schema location configuration
