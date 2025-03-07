@@ -23,6 +23,8 @@ import androidx.compose.material3.Badge
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButton
@@ -38,6 +40,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
@@ -70,6 +75,7 @@ fun SchedulerListRoute(
         onScheduleClick = onScheduleClick,
         onCancelSchedule = viewModel::cancelSchedule,
         onFilterSelected = viewModel::setFilter,
+        onSortOptionSelected = viewModel::setSortOption,
         modifier = modifier
     )
 }
@@ -82,9 +88,9 @@ fun SchedulerListScreen(
     onScheduleClick: (Long) -> Unit,
     onCancelSchedule: (Long) -> Unit,
     onFilterSelected: (ScheduleFilter) -> Unit,
+    onSortOptionSelected: (SortOption) -> Unit,
     modifier: Modifier = Modifier
 ) {
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -92,17 +98,36 @@ fun SchedulerListScreen(
                     Text("Scheduled Apps")
                 },
                 actions = {
+                    var showSortMenu by remember { mutableStateOf(false) }
                     IconButton(
-                        onClick = { }
+                        onClick = { showSortMenu = true }
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.baseline_sort_24),
-                            contentDescription = "Create schedule",
+                            contentDescription = "Sort options",
                             colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.primary)
                         )
+                        DropdownMenu(
+                            expanded = showSortMenu,
+                            onDismissRequest = { showSortMenu = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Sort by Date") },
+                                onClick = {
+                                    onSortOptionSelected(SortOption.DATE)
+                                    showSortMenu = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Sort by Name") },
+                                onClick = {
+                                    onSortOptionSelected(SortOption.NAME)
+                                    showSortMenu = false
+                                }
+                            )
+                        }
                     }
                 },
-
                 colors = TopAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surfaceContainer,
                     scrolledContainerColor = MaterialTheme.colorScheme.surfaceContainer,
@@ -111,9 +136,7 @@ fun SchedulerListScreen(
                     actionIconContentColor = MaterialTheme.colorScheme.primary
                 ),
             )
-
         },
-
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onCreateSchedule,
@@ -123,7 +146,6 @@ fun SchedulerListScreen(
                     contentDescription = "Create schedule"
                 )
             }
-
         }
     ) { paddingValues ->
         Surface(
@@ -140,7 +162,6 @@ fun SchedulerListScreen(
                             modifier = Modifier.align(Alignment.Center)
                         )
                     }
-
                     is SchedulerListUiState.Success -> {
                         if (uiState.schedules.isEmpty()) {
                             Column(
@@ -163,7 +184,6 @@ fun SchedulerListScreen(
                                 modifier = Modifier.fillMaxSize(),
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-
                                 stickyHeader {
                                     Surface(
                                         modifier = Modifier.padding(bottom = 4.dp)
@@ -183,9 +203,7 @@ fun SchedulerListScreen(
                                             }
                                         }
                                     }
-
                                 }
-
                                 items(
                                     items = uiState.schedules,
                                     key = { it.id }
@@ -202,11 +220,8 @@ fun SchedulerListScreen(
                 }
             }
         }
-
-
     }
 }
-
 
 @Composable
 fun ScheduleItem(
@@ -222,14 +237,12 @@ fun ScheduleItem(
             Text(schedule.appName)
         },
         supportingContent = {
-
             when {
                 schedule.isExecuted -> {
                     ExecutedBadge()
                 }
                 schedule.isCancelled -> {
                     CancelledBadge()
-
                 }
                 else -> {
                     ScheduledBadge()
@@ -239,7 +252,6 @@ fun ScheduleItem(
         overlineContent = {
             Text(schedule.scheduledTime)
         },
-
         leadingContent = {
             if(schedule.appIcon == null) {
                 Image(
@@ -257,7 +269,6 @@ fun ScheduleItem(
                 }
             }
         },
-
         trailingContent = {
             if (!schedule.isExecuted && !schedule.isCancelled) {
                 TextButton(onClick = onCancel) {
@@ -265,8 +276,6 @@ fun ScheduleItem(
                 }
             }
         }
-
-
     )
 }
 

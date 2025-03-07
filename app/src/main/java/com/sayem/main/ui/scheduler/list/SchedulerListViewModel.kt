@@ -26,6 +26,11 @@ enum class ScheduleFilter {
     Cancelled
 }
 
+enum class SortOption {
+    DATE,
+    NAME
+}
+
 @HiltViewModel
 class SchedulerListViewModel @Inject constructor(
     private val repository: ScheduledAppRepository,
@@ -34,11 +39,13 @@ class SchedulerListViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _selectedFilter = MutableStateFlow(ScheduleFilter.All)
+    private val _selectedSortOption = MutableStateFlow(SortOption.DATE)
 
     val uiState: StateFlow<SchedulerListUiState> = combine(
         repository.getAllScheduledApps(),
-        _selectedFilter
-    ) { schedules, filter ->
+        _selectedFilter,
+        _selectedSortOption
+    ) { schedules, filter, sortOption ->
         val mappedSchedules = schedules.map { schedule ->
             try {
                 val appInfo = packageManager.getApplicationInfo(schedule.packageName, 0)
@@ -71,9 +78,15 @@ class SchedulerListViewModel @Inject constructor(
             ScheduleFilter.Cancelled -> mappedSchedules.filter { it.isCancelled }
         }
 
+        val sortedSchedules = when (sortOption) {
+            SortOption.DATE -> filteredSchedules.sortedByDescending { it.scheduledTime }
+            SortOption.NAME -> filteredSchedules.sortedBy { it.appName }
+        }
+
         SchedulerListUiState.Success(
-            schedules = filteredSchedules,
-            selectedFilter = filter
+            schedules = sortedSchedules,
+            selectedFilter = filter,
+            selectedSortOption = sortOption
         )
     }
     .stateIn(
@@ -98,12 +111,17 @@ class SchedulerListViewModel @Inject constructor(
         return SimpleDateFormat("MMM dd, yyyy hh:mm a", Locale.getDefault())
             .format(Date(timestamp))
     }
+
+    fun setSortOption(option: SortOption) {
+        _selectedSortOption.value = option
+    }
 }
 
 sealed interface SchedulerListUiState {
     object Loading : SchedulerListUiState
     data class Success(
         val schedules: List<ScheduleUiModel>,
-        val selectedFilter: ScheduleFilter = ScheduleFilter.All
+        val selectedFilter: ScheduleFilter = ScheduleFilter.All,
+        val selectedSortOption: SortOption = SortOption.DATE
     ) : SchedulerListUiState
 }
