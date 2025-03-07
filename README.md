@@ -1,4 +1,4 @@
-![Profile Card](github_repo_card.png)
+![Profile Card](schedule_my_app.png)
 
 # Schedule My App
 

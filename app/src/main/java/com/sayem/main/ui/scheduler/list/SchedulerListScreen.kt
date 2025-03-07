@@ -205,7 +205,7 @@ fun SchedulerListScreen(
                         )
                     }
                     is SchedulerListUiState.Success -> {
-                        if (uiState.schedules.isEmpty()) {
+                        if (uiState.schedules.isEmpty() && uiState.selectedFilter == ScheduleFilter.All) {
                             Column(
                                 modifier = Modifier.fillMaxWidth().align(Alignment.Center),
                                 horizontalAlignment = Alignment.CenterHorizontally
@@ -246,18 +246,49 @@ fun SchedulerListScreen(
                                         }
                                     }
                                 }
-                                items(
-                                    items = uiState.schedules,
-                                    key = { it.id }
-                                ) { schedule ->
-                                    ScheduleItem(
-                                        schedule = schedule,
-                                        onClick = { onScheduleClick(schedule.id) },
-                                        onCancel = {
-                                            showCancelDialog = true
-                                            scheduleToCancel = schedule.id
-                                        },
-                                    )
+
+                                if(uiState.schedules.isNotEmpty()) {
+                                    items(
+                                        items = uiState.schedules,
+                                        key = { it.id }
+                                    ) { schedule ->
+                                        ScheduleItem(
+                                            schedule = schedule,
+                                            onClick = { onScheduleClick(schedule.id) },
+                                            onCancel = {
+                                                showCancelDialog = true
+                                                scheduleToCancel = schedule.id
+                                            },
+                                        )
+                                    }
+                                }
+                                else{
+                                    item {
+                                        Box(
+                                            modifier = Modifier.fillMaxSize()
+                                        ) {
+                                            Column(
+                                                modifier = Modifier.fillMaxSize(),
+                                                horizontalAlignment = Alignment.CenterHorizontally,
+                                                verticalArrangement = Arrangement.Center
+                                            ) {
+                                                Spacer(modifier= Modifier.height(40.dp))
+
+                                                Image(
+                                                    modifier = Modifier.size(40.dp),
+                                                    painter = painterResource(R.drawable.baseline_filter_alt_24),
+                                                    contentDescription = "Empty schedule",
+                                                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.outline)
+                                                )
+                                                Spacer(modifier= Modifier.height(20.dp))
+                                                Text(
+                                                    text = "No filtered apps",
+                                                    style = MaterialTheme.typography.bodyLarge,
+                                                    color = MaterialTheme.colorScheme.outline
+                                                )
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
