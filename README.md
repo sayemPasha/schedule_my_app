@@ -1,6 +1,8 @@
+![Profile Card](github_profile_card.png)
+
 # Schedule My App
 
-A modern Android application that allows users to schedule automatic launches of other installed applications at specified times. Built with Jetpack Compose and following modern Android development practices.
+Schedule automatic launches of other installed applications at specified times. Built with Jetpack Compose and following modern Android development practices.
 
 ## Features
 
