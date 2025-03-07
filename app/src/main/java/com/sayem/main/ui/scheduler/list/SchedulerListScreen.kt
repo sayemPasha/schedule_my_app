@@ -1,5 +1,6 @@
 package com.sayem.main.ui.scheduler.list
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -22,6 +24,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -37,6 +40,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -65,17 +69,19 @@ fun SchedulerListRoute(
         onCreateSchedule = onCreateSchedule,
         onScheduleClick = onScheduleClick,
         onCancelSchedule = viewModel::cancelSchedule,
+        onFilterSelected = viewModel::setFilter,
         modifier = modifier
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun SchedulerListScreen(
     uiState: SchedulerListUiState,
     onCreateSchedule: () -> Unit,
     onScheduleClick: (Long) -> Unit,
     onCancelSchedule: (Long) -> Unit,
+    onFilterSelected: (ScheduleFilter) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -87,11 +93,12 @@ fun SchedulerListScreen(
                 },
                 actions = {
                     IconButton(
-                        onClick = onCreateSchedule
+                        onClick = { }
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = "Settings"
+                        Image(
+                            painter = painterResource(id = R.drawable.baseline_sort_24),
+                            contentDescription = "Create schedule",
+                            colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.primary)
                         )
                     }
                 },
@@ -156,6 +163,29 @@ fun SchedulerListScreen(
                                 modifier = Modifier.fillMaxSize(),
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
+
+                                stickyHeader {
+                                    Surface(
+                                        modifier = Modifier.padding(bottom = 4.dp)
+                                    ){
+                                        LazyRow(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(horizontal = 16.dp, vertical = 8.dp),
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                        ) {
+                                            items(ScheduleFilter.values()) { filter ->
+                                                FilterChip(
+                                                    selected = uiState.selectedFilter == filter,
+                                                    onClick = { onFilterSelected(filter) },
+                                                    label = { Text(filter.name) }
+                                                )
+                                            }
+                                        }
+                                    }
+
+                                }
+
                                 items(
                                     items = uiState.schedules,
                                     key = { it.id }
@@ -211,12 +241,20 @@ fun ScheduleItem(
         },
 
         leadingContent = {
-            schedule.appIcon?.let { icon ->
+            if(schedule.appIcon == null) {
                 Image(
-                    painter = rememberDrawablePainter(drawable = icon),
+                    painter = painterResource(id = R.drawable.ic_empty_app),
                     contentDescription = "App icon for ${schedule.appName}",
                     modifier = Modifier.size(40.dp)
                 )
+            } else {
+                schedule.appIcon?.let { icon ->
+                    Image(
+                        painter = rememberDrawablePainter(drawable = icon),
+                        contentDescription = "App icon for ${schedule.appName}",
+                        modifier = Modifier.size(40.dp)
+                    )
+                }
             }
         },
 
